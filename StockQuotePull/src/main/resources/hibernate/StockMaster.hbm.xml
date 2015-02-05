@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+<hibernate-mapping>
+
+<class name="com.tech.fin.stock.entity.StockMaster" table="STOCK_MASTER">
+
+
+	<id name="stockKey" column="STOCK_KEY" />
+	<property name="marketCode" column="MARKET_CODE" />
+	<property name="stockCode" column="STOCK_CODE" />
+	<property name="stockName" column="STOCK_NAME" />
+
+	<one-to-one name="stockQuote" fetch="select" class="com.tech.fin.stock.entity.StockQuote"></one-to-one>
+			
+</class>
+</hibernate-mapping>

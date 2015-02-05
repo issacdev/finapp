@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+	
+
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="jdbc:mysql://localhost:3306/stockfeeder" />
+		<property name="username" value="inno" />
+		<property name="password" value="inno" />
+	</bean>
+	
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+        <property name="dataSource" ref="dataSource" />  
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
+                <prop key="hibernate.show_sql">false</prop>  
+            </props>
+        </property>
+        
+        <!--
+        <property name="mappingLocations">
+            <list>
+                <value>hibernate/StockMaster.hbm.xml</value>
+            </list>
+        </property>
+        -->
+        
+        <property name="annotatedClasses">
+            <list>
+                <value>com.tech.fin.stock.entity.StockMaster</value>
+                <value>com.tech.fin.stock.entity.StockQuote</value>
+            </list>
+        </property>
+        
+        <!-- 
+ 		<property name="mappingResources">  
+        <list>  
+        <value>employee.hbm.xml</value>  
+        </list>  
+        </property> 
+         -->
+         
+    </bean>
+    		
+	<tx:annotation-driven transaction-manager="transactionManager"/>
+ 
+ 	<bean id="aastocksExtractor" class="com.tech.fin.stock.extract.AastocksExtractor">
+ 		<property name="url" value="http://www.aastocks.com/tc/cnhk/quote/detail-quote.aspx?shsymbol=##STOCK_CODE##"></property>
+ 		<property name="masterDao" ref="stockMasterDaoImpl"/>
+ 		<property name="quoteDao" ref="stockQuoteDaoImpl"/>
+ 		<property name="marketCode" value="SS"/>
+ 	</bean>
+ 
+	<bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+    	    	
+    <bean id="stockMasterDaoImpl" class="com.tech.fin.stock.dao.StockMasterDaoImpl">
+    	<property name="sessionFactory" ref="sessionFactory" />
+    </bean>	    	
+ 
+    <bean id="stockQuoteDaoImpl" class="com.tech.fin.stock.dao.StockQuoteDaoImpl">
+    	<property name="sessionFactory" ref="sessionFactory" />
+    </bean>	 
+    
+     <bean id="bossPriceFileGen" class="com.tech.fin.stock.gen.BossPriceFileGen">
+ 		<property name="masterDao" ref="stockMasterDaoImpl"/>
+ 		<property name="marketCode" value="SS"/>
+ 		<property name="filePath" value="D:\\app\\quicktrade\\boss\\STKPRICESHA_AA.TXT"/>
+
+ 	</bean>
+    
+      	    	
+</beans>
