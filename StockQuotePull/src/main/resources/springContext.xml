@@ -55,6 +55,30 @@
  		<property name="masterDao" ref="stockMasterDaoImpl"/>
  		<property name="quoteDao" ref="stockQuoteDaoImpl"/>
  		<property name="marketCode" value="SS"/>
+ 		<property name="httpProxy" ref="httpProxy"/>
+ 	</bean>
+ 	
+ 	<bean id="yahooExtractor" class="com.tech.fin.stock.extract.YahooExtractor">
+ 	 	<property name="url" value="https://hk.finance.yahoo.com/q?s=##STOCK_CODE##"></property>
+ 		<property name="masterDao" ref="stockMasterDaoImpl"/>
+ 		<property name="quoteDao" ref="stockQuoteDaoImpl"/>
+ 		<property name="marketCode" value="SS"/>
+ 		<property name="httpProxy" ref="httpProxy"/>
+ 	</bean>
+
+ 	<bean id="bloombergExtractor" class="com.tech.fin.stock.extract.BloombergExtractor">
+ 	 	<property name="url" value="http://www.bloomberg.com/quote/##STOCK_CODE##:CH"></property>
+ 		<property name="masterDao" ref="stockMasterDaoImpl"/>
+ 		<property name="quoteDao" ref="stockQuoteDaoImpl"/>
+ 		<property name="marketCode" value="SS"/>
+ 		<property name="httpProxy" ref="httpProxy"/>	
+ 	</bean>
+ 	
+ 	<bean id="httpProxy" class="com.tech.fin.network.HttpProxy">
+		<property name="ip" value="10.190.10.70"></property>
+		<property name="port" value="8080"></property>
+		<property name="username" value="reg3\\issaclau"></property>
+		<property name="password" value="DBStak01"></property>
  	</bean>
  
 	<bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
@@ -69,12 +93,33 @@
     	<property name="sessionFactory" ref="sessionFactory" />
     </bean>	 
     
-     <bean id="bossPriceFileGen" class="com.tech.fin.stock.gen.BossPriceFileGen">
+    <bean id="aastocksBossPriceFileGen" class="com.tech.fin.stock.gen.BossPriceFileGen">
  		<property name="masterDao" ref="stockMasterDaoImpl"/>
  		<property name="marketCode" value="SS"/>
- 		<property name="filePath" value="D:\\app\\quicktrade\\boss\\STKPRICESHA_AA.TXT"/>
-
+ 		<property name="filePath" value="D:\\app\\quicktrade\\boss\\STKPRICESHA_AASTOCKS.TXT"/>
  	</bean>
     
-      	    	
+    <bean id="yahooBossPriceFileGen" class="com.tech.fin.stock.gen.BossPriceFileGen">
+ 		<property name="masterDao" ref="stockMasterDaoImpl"/>
+ 		<property name="marketCode" value="SS"/>
+ 		<property name="filePath" value="D:\\app\\quicktrade\\boss\\STKPRICESHA.TXT"/>
+ 	</bean>
+ 	  	 
+ 	<bean id="bossPriceBatchJob" class="com.tech.fin.batch.BossPriceBatchJob">
+ 	
+ 		<property name="extractorList">
+ 			<list>
+                <ref bean="aastocksExtractor"/>
+                <ref bean="yahooExtractor"/>
+            </list>
+ 		</property>
+ 	
+ 		<property name="fileGenList">
+            <list>
+                <ref bean="aastocksBossPriceFileGen"/>
+                <ref bean="yahooBossPriceFileGen"/>
+            </list>
+        </property>
+        
+ 	</bean>  	    	
 </beans>

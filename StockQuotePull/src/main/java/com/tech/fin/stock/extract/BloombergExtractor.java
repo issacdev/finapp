@@ -11,32 +11,33 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.util.StringUtils;
 
-import com.tech.fin.network.HttpProxy;
 import com.tech.fin.stock.dao.IStockMasterDao;
 import com.tech.fin.stock.dao.IStockQuoteDao;
 import com.tech.fin.stock.entity.StockMaster;
 import com.tech.fin.stock.entity.StockQuote;
+import com.tech.fin.stock.main.Main;
 
-public class AastocksExtractor extends AExtractor{
+public class BloombergExtractor extends AExtractor{
 	
-	private int skip = 60000; 
-	private String riseKey = "<b><span class=\'pos\'><span class=\'arr_ud arrow_u5\'> </span>&nbsp;";
-	private String dropKey = "<b><span class=\'neg\'><span class=\'arr_ud arrow_d6\'> </span>&nbsp;";
-	private String unchangedKey = "<b><span class=\"cls ss2\">";
+	private int skip = 0; 
+	private String searchKey = "<meta itemprop=\"price\" content=\"";
 	
 	public static Logger log = Logger.getLogger(AastocksExtractor.class.getName());
 	
 	public void run() throws Exception{
 		
-		System.out.println("#### AASTOCKS EXTRACTOR");
-		
+		System.out.println("### BL");
 		List<StockMaster> masterList = masterDao.getByMarket(marketCode);
 		
 		for(StockMaster master : masterList){
 			
+			//Stock Key
 			String tempUrl = url.replace("##STOCK_CODE##", master.getStockCode());
-			
+	        String inputLine;
+	        
 			StockQuote quote = master.getStockQuote();
 			if(quote == null){
 				quote = new StockQuote();
@@ -46,33 +47,19 @@ public class AastocksExtractor extends AExtractor{
 			}
 			
 			BufferedReader in = getBufferedReader(tempUrl, skip);
-	        
-	        String inputLine;
-	        
+	    
 	        while ((inputLine = in.readLine()) != null){
 	        	
 	        	inputLine = inputLine.trim();
 	        	
-	        	String searchKey = "";
-	        	
-	        	if(inputLine.contains(riseKey)){
-	        		searchKey = riseKey;
-	        	}
-	        	else if(inputLine.contains(dropKey)){
-	        		searchKey = dropKey;
-	        	}
-	        	else if(inputLine.contains(unchangedKey)){
-	        		searchKey = unchangedKey;
-	        	}
-	        	
-	        	if(searchKey.length() > 0){
+	        	if(inputLine.contains(searchKey)){
 		        	
-		        	int count3 = inputLine.indexOf(searchKey);
+		        	int count = inputLine.indexOf(searchKey);
 		        	
-	        		String price = (inputLine).substring((count3 + searchKey.length()), (count3 + searchKey.length()) + 10);
+	        		String price = (inputLine).substring((count + searchKey.length()), (count + searchKey.length()) + 8 );
 	        		
-	        		if(price.contains("<")){
-	        			price = price.substring(0, price.indexOf("<"));
+	        		if(price.contains("\"")){
+	        			price = price.substring(0, price.indexOf("\"") - 1);
 	        		}
 		        	
 	        		System.out.println("# " + master.getStockCode() + " - " + price);
@@ -85,5 +72,5 @@ public class AastocksExtractor extends AExtractor{
 	        }
 	        in.close();
 		}
-	}	
+	}
 }

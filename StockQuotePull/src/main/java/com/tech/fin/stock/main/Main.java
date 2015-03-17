@@ -3,10 +3,7 @@ package com.tech.fin.stock.main;
 import org.apache.log4j.Logger;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.tech.fin.stock.dao.IStockMasterDao;
-import com.tech.fin.stock.dao.IStockQuoteDao;
-import com.tech.fin.stock.entity.StockMaster;
-import com.tech.fin.stock.extract.AastocksExtractor;
+import com.tech.fin.batch.IJob;
 import com.tech.fin.stock.gen.BossPriceFileGen;
 
 public class Main {
@@ -17,11 +14,24 @@ public class Main {
 		
 		ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext("springContext.xml");
 		
+		//BloombergExtractor extor = (BloombergExtractor)ctx.getBean("bloombergExtractor");
+		//extor.run();
+		
+		//YahooExtractor extor = (YahooExtractor)ctx.getBean("yahooExtractor");
+		//extor.run();
+		
+		IJob job = (IJob)ctx.getBean("bossPriceBatchJob");
+		job.run();
+		
+		//BossPriceFileGen aastocksfileGen = (BossPriceFileGen)ctx.getBean("aastocksBossPriceFileGen");
+		//aastocksfileGen.run();
+		
+		/*
 		IStockMasterDao dao = (IStockMasterDao)ctx.getBean("stockMasterDaoImpl");
 		IStockQuoteDao quoteDao = (IStockQuoteDao)ctx.getBean("stockQuoteDaoImpl");
 		
 		StockMaster master = new StockMaster();
-		/*
+		
 		
 		master.setStockKey("600004.SS");
 		master.setMarketCode("SS");
@@ -47,13 +57,6 @@ public class Main {
 				System.out.println("####" + master2.getStockQuote().getOpen());
 			}
 		}*/
-		
-		AastocksExtractor extor = (AastocksExtractor)ctx.getBean("aastocksExtractor");
-		extor.run();
-		
-		BossPriceFileGen fileGen = (BossPriceFileGen)ctx.getBean("bossPriceFileGen");
-		fileGen.run();
-	
 		
 		/*
 		StockQuote quote = new StockQuote();
